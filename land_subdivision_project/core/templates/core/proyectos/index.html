@@ -1,0 +1,52 @@
+<!-- Botón para abrir modal de creación -->
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proyectoModal">
+    <i class="fas fa-plus"></i> Nuevo Proyecto
+</button>
+
+<!-- Modal Genérico -->
+<div class="modal fade" id="proyectoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Nuevo Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                {% include 'core/proyectos/form.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manejar AJAX -->
+<script>
+// Función para abrir modal de edición
+function openEditModal(url) {
+    fetch(url)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalTitle').textContent = 'Editar Proyecto';
+            new bootstrap.Modal(document.getElementById('proyectoModal')).show();
+        });
+}
+
+// Eliminación directa
+function deleteProyecto(url) {
+    if (confirm('¿Estás seguro de eliminar este proyecto?')) {
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Recargar para ver cambios
+            }
+        });
+    }
+}
+</script>

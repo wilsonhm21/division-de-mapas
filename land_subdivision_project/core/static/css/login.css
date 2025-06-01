@@ -1,0 +1,200 @@
+/* Variables CSS */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4cc9f0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --success-color: #4bb543;
+}
+
+/* Estilos Generales del Cuerpo */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Contenedor del Formulario de Login/Registro */
+.login-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    transition: all 0.3s ease;
+}
+
+.login-container:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos del Logo */
+.logo {
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+/* Título de la Página (h2) */
+h2 {
+    color: var(--dark-color);
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background: var(--accent-color);
+    margin: 10px auto;
+    border-radius: 2px;
+}
+
+/* Controles de Formulario (inputs) */
+.form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+}
+
+/* Botón Personalizado */
+.btn-custom {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    width: 100%;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+    color: white; /* Asegura que el color del texto no cambie en hover */
+}
+
+/* Etiquetas de Formulario */
+.form-label {
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+/* Mensajes de Error y Alertas */
+.invalid-feedback {
+    font-size: 0.85rem;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+/* Enlaces de Login/Registro */
+.login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.login-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.login-links a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+/* Login Social (con línea separadora) */
+.social-login {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.social-login p {
+    position: relative;
+    color: #6c757d;
+    margin-bottom: 20px;
+    display: flex; /* Para centrar el texto con las líneas */
+    align-items: center; /* Para alinear el texto verticalmente con las líneas */
+    justify-content: center; /* Para centrar el texto */
+}
+
+.social-login p::before,
+.social-login p::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+    margin: auto 10px;
+}
+
+/* Iconos de Redes Sociales */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s;
+}
+
+.social-icon:hover {
+    transform: translateY(-3px);
+}
+
+.facebook {
+    background-color: #3b5998;
+}
+
+.google {
+    background-color: #db4437;
+}
+
+.twitter {
+    background-color: #1da1f2;
+}
+
+/* Media Queries (para dispositivos pequeños) */
+@media (max-width: 576px) {
+    .login-container {
+        padding: 30px 20px;
+    }
+    
+    .login-links {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+}

@@ -1,0 +1,185 @@
+{# core/templates/core/dashboard.html #}
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Lotizador{% endblock %}
+
+{% block extra_head %} {# Usamos 'extra_head' para CSS adicional, como lo definimos en base.html #}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %} {# ¡CAMBIADO! Ahora usa el bloque 'content' de base.html #}
+    <div class="dashboard-container">
+        {# Header de Bienvenida #}
+        <div class="dashboard-header">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Bienvenido, <span class="username">{{ request.user.username }}</span></h1>
+                <p class="welcome-subtitle">Resumen ejecutivo de tus proyectos y actividades</p>
+            </div>
+            <div class="date-section">
+                <div class="date-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="current-date"></span>
+                </div>
+            </div>
+        </div>
+
+        {# Tarjetas de Métricas #}
+        <div class="metrics-grid">
+            {# Tarjeta de Proyectos Activos #}
+            <div class="metric-card">
+                <div class="metric-icon bg-primary-light">
+                    <i class="fas fa-folder-open text-primary"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Proyectos Activos</span>
+                    {# Aquí usas el dato que pasas desde views.py #}
+                    <span class="metric-value">{{ num_active_projects|default:"0" }}</span> 
+                    <a href="#" class="metric-link">Ver detalles <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            {# Tarjeta de Lotes Creados #}
+            <div class="metric-card">
+                <div class="metric-icon bg-success-light">
+                    <i class="fas fa-th text-success"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Lotes Creados</span>
+                    {# Aquí usas el dato que pasas desde views.py #}
+                    <span class="metric-value">{{ num_created_lots|default:"0" }}</span>
+                    <a href="#" class="metric-link">Gestionar <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            {# Tarjeta de Alertas #}
+            <div class="metric-card">
+                <div class="metric-icon bg-warning-light">
+                    <i class="fas fa-bell text-warning"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Alertas</span>
+                    {# Aquí usas el dato que pasas desde views.py #}
+                    <span class="metric-value">{{ num_alerts|default:"0" }}</span>
+                    <a href="#" class="metric-link">Revisar <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            {# Tarjeta de Documentos #}
+            <div class="metric-card">
+                <div class="metric-icon bg-info-light">
+                    <i class="fas fa-file-alt text-info"></i>
+                </div>
+                <div class="metric-info">
+                    <span class="metric-label">Documentos</span>
+                    {# Ejemplo: podrías tener un 'num_documents' en el contexto #}
+                    <span class="metric-value">8</span>
+                    <a href="#" class="metric-link">Explorar <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        {# Acciones Rápidas #}
+        <div class="quick-actions">
+            <h2 class="section-title"><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+            <div class="actions-grid">
+                <a href="#" class="action-card">
+                    <div class="action-icon bg-primary">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <span class="action-title">Nuevo Proyecto</span>
+                    <span class="action-description">Crear un nuevo proyecto de lotización</span>
+                </a>
+
+                <a href="{% url 'core:map_interface' %}" class="action-card">
+                    <div class="action-icon bg-info">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <span class="action-title">Mapas</span>
+                    <span class="action-description">Visualización geográfica</span>
+                </a>
+
+                <a href="#" class="action-card">
+                    <div class="action-icon bg-secondary">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <span class="action-title">Documentos</span>
+                    <span class="action-description">Subir archivos y documentos</span>
+                </a>
+
+                <a href="#" class="action-card">
+                    <div class="action-icon bg-success">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span class="action-title">Reportes</span>
+                    <span class="action-description">Generar informes</span>
+                </a>
+            </div>
+        </div>
+
+        {# Gráficos y Estadísticas #}
+        <div class="stats-section">
+            <div class="chart-container">
+                <h2 class="section-title"><i class="fas fa-chart-bar"></i> Progreso de Proyectos</h2>
+                <div class="chart-placeholder">
+                    {# Aquí iría tu gráfico (Chart.js, etc.) #}
+                    <img src="{% static 'img/chart-placeholder.png' %}" alt="Gráfico de progreso" class="img-fluid">
+                </div>
+            </div>
+            
+            <div class="recent-activity">
+                <h2 class="section-title"><i class="fas fa-history"></i> Actividad Reciente</h2>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <i class="fas fa-file-signature activity-icon"></i>
+                        <div class="activity-content">
+                            <span class="activity-text">Nuevo contrato firmado</span>
+                            <span class="activity-time">Hace 2 horas</span>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <i class="fas fa-user-plus activity-icon"></i>
+                        <div class="activity-content">
+                            <span class="activity-text">Nuevo cliente registrado</span>
+                            <span class="activity-time">Hace 5 horas</span>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <i class="fas fa-map-marked-alt activity-icon"></i>
+                        <div class="activity-content">
+                            <span class="activity-text">Lote marcado como vendido</span>
+                            <span class="activity-time">Ayer, 15:30</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %} {# Cierre del bloque 'content' #}
+
+{% block extra_js %} {# Usamos 'extra_js' para JavaScript adicional, como lo definimos en base.html #}
+    <script>
+        // Mostrar fecha actual
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        // Animación al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.metric-card, .action-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0'; // Asegúrate de que estén invisibles al inicio en tu CSS
+                card.style.transform = 'translateY(20px)'; // Ligeramente desplazados
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+        });
+    </script>
+{% endblock extra_js %}
