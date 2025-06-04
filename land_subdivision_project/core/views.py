@@ -6,6 +6,11 @@ from django.contrib import messages
 from .forms import PerfilForm, ConfiguracionForm
 from .models import Perfil
 
+import io
+import sys
+from .spep import subdivide_terrain_geographic
+
+
 @login_required
 def perfil_view(request):
     # Asegurarse de que el perfil exista
@@ -71,3 +76,60 @@ def configuracion_view(request):
         'terrenos_count': terrenos_count
     }
     return render(request, 'core/configuracion.html', context)
+
+@login_required
+def subdividir_terreno(request):
+    if request.method == 'POST':
+        coordenadas = request.POST.get('coordenadas')
+        partes = int(request.POST.get('partes'))
+        ancho_carretera = float(request.POST.get('ancho_carretera', 3.0))
+        area_verde = request.POST.get('area_verde')
+        area_verde = int(area_verde) if area_verde else None
+
+        try:
+            coords = eval(coordenadas)
+            if coords[0] != coords[-1]:
+                coords.append(coords[0])
+        except:
+            return render(request, 'core/proyectos/formulario.html', {'error': 'Coordenadas inválidas'})
+
+        output_path = 'core/static/img/subdivision_resultado.png'
+
+        # 🔄 Capturar salida de consola
+        buffer = io.StringIO()
+        sys_stdout = sys.stdout
+        sys.stdout = buffer
+
+        # Ejecutar subdivisión
+        subdivide_terrain_geographic(
+            lat_lon_coords=coords,
+            parts=partes,
+            road_width=ancho_carretera,
+            green_area_idx=area_verde,
+            output_path=output_path
+        )
+
+        # Restaurar salida estándar
+        sys.stdout = sys_stdout
+        resumen_texto = buffer.getvalue()
+        buffer.close()
+
+        return render(request, 'core/proyectos/resultado.html', {
+            'imagen_url': '/static/img/subdivision_resultado.png',
+            'resumen': resumen_texto
+        })
+        
+        #resultado = subdivide_terrain_geographic(
+         #   lat_lon_coords=coords,
+          #  parts=partes,
+           # road_width=ancho_carretera,
+            #green_area_idx=area_verde,
+            #output_path=output_path
+        #)
+
+        #return render(request, 'core/proyectos/resultado.html', {
+         #   'imagen_url': '/static/img/subdivision_resultado.png',
+          #  'validaciones': resultado['validation_results']
+        #})
+
+    return render(request, 'core/proyectos/formulario.html')

@@ -14,6 +14,7 @@ from core.api_views import (
     ProyectoViewSet, TerrenoViewSet,
     ParametrosSubdivisionViewSet, LoteResultanteViewSet
 )
+from core.views import subdividir_terreno
 
 from rest_framework.routers import DefaultRouter
 
@@ -53,4 +54,7 @@ urlpatterns = [
     # Si tu core/views.py vacío tuviera alguna vista, la incluirías aquí.
     # Por ejemplo, si tuviste una 'home_view' en core/views.py:
     # path('', home_base_view, name='home'),
+    
+    path('subdividir/', subdividir_terreno, name='subdividir_terreno'),
+
 ]

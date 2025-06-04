@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'subdivision_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'subdivision_db',
+        'NAME': 'subdivision_db_final',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
