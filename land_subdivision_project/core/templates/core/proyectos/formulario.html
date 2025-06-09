@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Subdividir Proyecto | Lotizador{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-sm rounded-4">
+    <div class="card-body p-5">
+      <h2 class="mb-4 text-primary">Formulario de Subdivisión</h2>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="coordenadas" class="form-label fw-semibold">Coordenadas (lat, lon):</label>
+          <textarea name="coordenadas" id="coordenadas" rows="4" class="form-control" placeholder="Ej: [(-15.487033,-70.063152), (-15.48819,-70.063152), ...]">[(-15.487033,-70.063152),(-15.48819,-70.063152),(-15.48813,-70.061779)]</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="partes" class="form-label fw-semibold">Número de partes:</label>
+          <input type="number" name="partes" id="partes" value="4" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label for="ancho_carretera" class="form-label fw-semibold">Ancho de carretera (m):</label>
+          <input type="number" step="0.1" name="ancho_carretera" id="ancho_carretera" value="3.0" class="form-control">
+        </div>
+
+        <div class="mb-4">
+          <label for="area_verde" class="form-label fw-semibold">Índice de área verde (opcional):</label>
+          <input type="number" name="area_verde" id="area_verde" class="form-control">
+        </div>
+
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary px-4 py-2">Subdividir</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

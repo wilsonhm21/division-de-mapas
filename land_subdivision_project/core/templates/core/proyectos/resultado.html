@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Resultado Subdivisión | Lotizador{% endblock %}
+
+{% block content %}
+<h2>Resultado de Subdivisión</h2>
+
+{% if imagen_url %}
+  <img src="{{ imagen_url }}" alt="Subdivisión" style="max-width: 100%; border: 1px solid #ccc;">
+{% else %}
+  <p style="color:red;">No se pudo generar la imagen</p>
+{% endif %}
+
+<!--<h3 class="mt-4">📋 Validación de Lotes</h3>
+<table class="table table-striped table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Lote</th>
+      <th>Área (m²)</th>
+      <th>Uso del Suelo</th>
+      <th>Frente (ml)</th>
+      <th>Área Libre</th>
+      <th>Forma</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lote in validaciones %}
+    <tr>
+      <td>{{ lote.lot }}</td>
+      <td>{{ lote.area|floatformat:2 }}</td>
+      <td>{{ lote.land_use|title }}</td>
+      <td>{{ lote.frontage|floatformat:2 }} <br><small>{{ lote.frontage_msg }}</small></td>
+      <td>{{ lote.free_area|floatformat:2 }} m²<br><small>{{ lote.free_area_msg }}</small></td>
+      <td><small>{{ lote.shape_msg }}</small></td>
+      <td>
+        {% if lote.area_ok and lote.frontage_ok and lote.free_area_ok and lote.shape_ok %}
+          ✅ Aprobado
+        {% else %}
+          ❌ No Aprobado
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>-->
+
+<h3>📋 Resumen de Subdivisión</h3>
+<pre style="background:#f7f7f7; padding:15px; border-radius:5px; font-family:monospace; white-space:pre-wrap;">
+{{ resumen }}
+</pre>
+
+<br><br>
+<a href="{% url 'core:subdividir_terreno' %}" class="btn btn-primary">← Volver al formulario</a>
+{% endblock %}

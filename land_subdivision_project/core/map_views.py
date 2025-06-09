@@ -2,7 +2,8 @@
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from core.models import Proyecto # Importación absoluta desde core.models
+from core.models import Proyecto
+from django.http import HttpResponseServerError
 
 @login_required
 def map_view(request):
@@ -10,18 +11,15 @@ def map_view(request):
     Vista que muestra la interfaz del mapa de subdivisión.
     Solo accesible para usuarios autenticados.
     """
-    proyecto_del_usuario = request.user.proyecto_set.first()
-    proyecto_id = None
-    if proyecto_del_usuario:
-        proyecto_id = proyecto_del_usuario.id
-    else:
-        proyecto_del_usuario = Proyecto.objects.create(
+    try:
+        proyecto_del_usuario, created = Proyecto.objects.get_or_create(
             usuario=request.user,
-            nombre_proyecto=f"Proyecto por defecto de {request.user.username}"
+            defaults={'nombre_proyecto': f"Proyecto por defecto de {request.user.username}"}
         )
-        proyecto_id = proyecto_del_usuario.id
+    except Exception as e:
+        return HttpResponseServerError(f"Error al obtener o crear proyecto: {e}")
 
     context = {
-        'proyecto_id': proyecto_id
+        'proyecto_id': proyecto_del_usuario.id
     }
     return render(request, "core/map_interface.html", context)

@@ -1,92 +1,123 @@
-// static/js/app.js (o tu archivo de inicialización principal)
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Obtener el CSRF Token (si aún no lo tienes globalmente)
+    // Función para obtener cookie CSRF
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+            document.cookie.split(';').forEach(cookie => {
+                const c = cookie.trim();
+                if (c.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(c.substring(name.length + 1));
                 }
-            }
+            });
         }
         return cookieValue;
     }
+
     const csrftoken = getCookie('csrftoken');
     TerrainManager.setCSRFToken(csrftoken);
 
-    // 2. Obtener el PROYECTO_ID inyectado desde Django y pasárselo a TerrainManager
-    // Asegúrate de que el script en map_interface.html ya haya definido PROYECTO_ID
     if (typeof PROYECTO_ID !== 'undefined' && PROYECTO_ID !== null) {
-        TerrainManager.setProjectId(PROYECTO_ID);
+        // CORRECCIÓN CLAVE: Usar el nombre de función correcto
+        TerrainManager.setCurrentProjectId(PROYECTO_ID);
     } else {
-        console.error("PROYECTO_ID no está definido en el contexto global. El guardado podría fallar.");
         Swal.fire('Error de Configuración', 'No se pudo cargar el ID del proyecto. Recargue la página.', 'error');
+        // Puedes deshabilitar botones aquí si quieres
+        return;
     }
 
-    // 3. Inicializar el mapa y los eventos
+    // Inicialización del mapa. Esto ya incluye el control de dibujo.
     MapManager.initMap();
-    MapManager.setupDrawControl();
 
-    // 4. Configurar listeners de la UI
-    // Evento para el botón "Guardar Terreno"
-    document.getElementById('save-polygon-btn').addEventListener('click', async () => {
-        // La lógica de guardado está ahora encapsulada en TerrainManager.savePolygon()
-        const savedData = await TerrainManager.savePolygon();
-        if (savedData) {
-            // Si el terreno se guardó exitosamente, actualiza la UI
-            MapManager.updateTerrenoStatus(true);
-            document.getElementById('current-terreno-id').value = savedData.id;
-            // Opcional: Cargar el terreno recién guardado en el mapa
-            // MapManager.loadGeoJSON(JSON.parse(savedData.geometria_geojson));
-        }
-    });
-
-    // Evento para el botón "Limpiar Mapa"
-    document.getElementById('clear-map-btn').addEventListener('click', () => {
-        MapManager.clearMap();
-        MapManager.updateTerrenoStatus(false);
-        document.getElementById('current-terreno-id').value = 'N/A';
-        document.getElementById('terreno-name').value = '';
-        document.getElementById('geojson-output').value = '';
-    });
-
-    // Evento para el botón "Buscar Terreno"
-    document.getElementById('load-polygon-btn').addEventListener('click', async () => {
-        const terrenoId = document.getElementById('load-terreno-id').value;
-        const loadedData = await TerrainManager.loadPolygon(terrenoId);
-        if (loadedData) {
-            MapManager.clearMap();
-            MapManager.loadGeoJSON(JSON.parse(loadedData.geometria_geojson)); // Parsear a objeto JS
-            TerrainManager.setCurrentTerreno(loadedData.id, loadedData.nombre_terreno, loadedData.geometria_geojson); // Actualiza también el GeoJSON
-            MapManager.updateTerrenoStatus(true);
-        }
-    });
-
-    // Evento para el botón "Subdividir Terreno"
-    document.getElementById('subdivide-btn').addEventListener('click', async () => {
-        const terrenoId = TerrainManager.getCurrentTerreno().id;
-        const geojsonPolygonStr = TerrainManager.getCurrentTerrenoGeoJSON(); // Obtener el GeoJSON guardado
-        const numLots = document.getElementById('num-lots').value;
-        const method = document.getElementById('subdivision-method').value;
-
-        try {
-            const subdivisionResult = await TerrainManager.subdivideTerreno(terrenoId, geojsonPolygonStr, numLots, method);
-            if (subdivisionResult) {
-                console.log('Resultado de subdivisión:', subdivisionResult);
-                // Aquí deberías pasar subdivisionResult a MapManager para dibujar los lotes
-                MapManager.displaySubdivisionResults(subdivisionResult.lotes_creados);
-                // Actualizar la interfaz de usuario con los detalles de los lotes
-                UIManager.updateLotesDetails(subdivisionResult.lotes_creados);
-                Swal.fire('¡Subdivisión Exitosa!', 'Los lotes han sido generados y dibujados en el mapa.', 'success');
+    // Event Listener para el botón Guardar Terreno
+    const saveBtn = document.getElementById('save-polygon-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+            try {
+                const savedData = await TerrainManager.savePolygon();
+                if (savedData) {
+                    // Usar UIManager para actualizar el estado
+                    UIManager.updateStatus(true);
+                    document.getElementById('current-terreno-id').value = savedData.id;
+                }
+            } catch (error) {
+                Swal.fire('Error al guardar', error.message || 'No se pudo guardar el terreno.', 'error');
             }
-        } catch (error) {
-            console.error('Error al subdividir desde UI:', error);
-            Swal.fire('Error de Subdivisión', error.message || 'Ocurrió un error al intentar subdividir el terreno.', 'error');
-        }
-    });
+        });
+    }
+
+    // Event Listener para el botón Limpiar Mapa
+    const clearBtn = document.getElementById('clear-map-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            MapManager.clearMap();
+            // Usar UIManager para actualizar el estado
+            UIManager.updateStatus(false);
+            document.getElementById('current-terreno-id').value = 'N/A';
+            document.getElementById('terreno-name').value = '';
+            document.getElementById('geojson-output').value = '';
+        });
+    }
+
+    // Event Listener para el botón Cargar Terreno Existente
+    const loadBtn = document.getElementById('load-polygon-btn');
+    if (loadBtn) {
+        loadBtn.addEventListener('click', async () => {
+            const terrenoId = document.getElementById('load-terreno-id').value.trim();
+            if (!terrenoId) {
+                return Swal.fire('Error', 'Ingrese un ID de terreno válido para cargar.', 'warning');
+            }
+            try {
+                const loadedData = await TerrainManager.loadPolygon(terrenoId);
+                if (loadedData) {
+                    MapManager.clearMap();
+                    // Asegúrate de que MapManager.loadGeoJSON exista en MapManager.js
+                    // y que maneje la adición del GeoJSON al mapa.
+                    MapManager.loadGeoJSON(JSON.parse(loadedData.geometria_geojson));
+                    TerrainManager.setCurrentTerreno(loadedData.id, loadedData.nombre_terreno, loadedData.geometria_geojson);
+                    UIManager.updateStatus(true);
+                } else {
+                    Swal.fire('No encontrado', 'No se encontró el terreno con ese ID.', 'info');
+                }
+            } catch (error) {
+                Swal.fire('Error al cargar', error.message || 'No se pudo cargar el terreno.', 'error');
+            }
+        });
+    }
+
+    // Event Listener para el botón Subdividir Terreno
+    const subdivideBtn = document.getElementById('subdivide-btn');
+    if (subdivideBtn) {
+        subdivideBtn.addEventListener('click', async () => {
+            const currentTerreno = TerrainManager.getCurrentTerreno();
+            if (!currentTerreno || !currentTerreno.id) {
+                return Swal.fire('Error', 'No hay un terreno seleccionado para subdividir.', 'warning');
+            }
+
+            const numLotsInput = document.getElementById('num-lots');
+            const methodSelect = document.getElementById('subdivision-method');
+
+            if (!numLotsInput || !methodSelect) {
+                return Swal.fire('Error', 'Faltan elementos en el formulario.', 'error');
+            }
+
+            const numLots = parseInt(numLotsInput.value);
+            if (isNaN(numLots) || numLots <= 0) {
+                return Swal.fire('Error', 'Ingrese un número válido de lotes mayor a 0.', 'warning');
+            }
+            const method = methodSelect.value;
+
+            try {
+                const subdivisionResult = await TerrainManager.subdivideTerreno(currentTerreno.id, currentTerreno.geojson, numLots, method);
+                if (subdivisionResult) {
+                    // Asegúrate de que MapManager.displaySubdivisionResults exista en MapManager.js
+                    MapManager.displaySubdivisionResults(subdivisionResult.lotes_creados);
+                    // Asegúrate de que UIManager.updateLotesDetails exista en UIManager.js
+                    UIManager.updateLotesDetails(subdivisionResult.lotes_creados);
+                    Swal.fire('¡Subdivisión Exitosa!', 'Los lotes han sido generados y dibujados en el mapa.', 'success');
+                }
+            } catch (error) {
+                Swal.fire('Error de Subdivisión', error.message || 'Ocurrió un error al intentar subdividir el terreno.', 'error');
+            }
+        });
+    }
 });

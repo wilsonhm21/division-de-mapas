@@ -34,7 +34,7 @@ const SubdivisionManager = (() => {
         
         const method = document.getElementById('subdivision-method').value;
         
-        const loadingAlert = Swal.fire({
+        Swal.fire({
             title: `Procesando subdivisión (${method})`,
             html: 'Por favor espere...',
             allowOutsideClick: false,
@@ -48,19 +48,24 @@ const SubdivisionManager = (() => {
             if (data.features && data.features.length > 0) {
                 MapManager.addResultLots(data); 
                 
+                // Primero calcular el área total
                 let totalArea = 0;
+                data.features.forEach(feature => {
+                    const area = feature.properties.area_sqm || 0;
+                    totalArea += area;
+                });
+
                 const lotesDetails = document.getElementById('lotes-details');
                 lotesDetails.innerHTML = '';
-                
+
+                // Ahora sí, mostrar los detalles con porcentaje correcto
                 data.features.forEach((feature, index) => {
-                    const area = feature.properties.area_sqm; 
-                    if (area) {
-                        totalArea += area;
-                    }
+                    const area = feature.properties.area_sqm || 0;
+                    const percentage = totalArea ? ((area / totalArea) * 100) : 0;
 
                     // Generar el color de forma consistente para la UI y el mapa
                     const color = `hsl(${index * 360 / data.features.length}, 70%, 50%)`;
-                    
+
                     const lotInfo = document.createElement('div');
                     lotInfo.className = 'lot-info';
                     lotInfo.innerHTML = `
@@ -70,8 +75,8 @@ const SubdivisionManager = (() => {
                                 title="Centrar en este lote">
                             <i class="bi bi-zoom-in"></i>
                         </button>
-                        <br>Área: ${(area || 0).toFixed(2)} m²
-                        <br>Porcentaje: ${((area / totalArea) * 100).toFixed(1) || 0}%
+                        <br>Área: ${area.toFixed(2)} m²
+                        <br>Porcentaje: ${percentage.toFixed(1)}%
                         <br><small style="color: ${color}">■</small> Color identificador
                     `;
                     lotesDetails.appendChild(lotInfo);
@@ -86,7 +91,7 @@ const SubdivisionManager = (() => {
                     <br>Área promedio: ${avgArea.toFixed(2)} m² por lote
                 `;
                 
-                loadingAlert.close();
+                Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: 'Subdivisión completada',
@@ -102,7 +107,7 @@ const SubdivisionManager = (() => {
             }
         } catch (error) {
             console.error('Error en subdivideCurrentPolygon:', error);
-            loadingAlert.close();
+            Swal.close();
             
             Swal.fire({
                 icon: 'error',

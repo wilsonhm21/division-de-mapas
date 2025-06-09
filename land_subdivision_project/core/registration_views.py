@@ -1,8 +1,7 @@
-# core/registration_views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from core.forms import UserRegisterForm # Importación absoluta desde core.forms
+from django.contrib import messages
+from core.forms import UserRegisterForm
 
 def register(request):
     if request.method == 'POST':
@@ -10,8 +9,11 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            # Asegúrate que 'dashboard' es el nombre de la URL de tu dashboard
-            return redirect('dashboard')
+            messages.success(request, f'¡Cuenta creada exitosamente! Bienvenido {user.username}.')
+            return redirect('core:dashboard')  # Asegúrate de que esta URL exista
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = UserRegisterForm()
-    return render(request, 'core/register.html', {'form': form})
+    return render(request, 'core/registration/register.html', {'form': form})
+
