@@ -8,6 +8,7 @@ from shapely.validation import explain_validity
 from shapely.errors import TopologicalError
 from pyproj import Transformer
 import logging
+from shapely.ops import transform
 
 # Configuración básica de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s')
@@ -79,7 +80,7 @@ def convert_geojson_to_utm(geojson_data_str):
 
         transformer = Transformer.from_crs("EPSG:4326", f"EPSG:{utm_epsg_code}", always_xy=True)
 
-        utm_polygon = original_polygon.transform(transformer.transform)
+        utm_polygon = transform(transformer.transform, original_polygon)
 
         if not utm_polygon.is_valid:
             logging.warning(f"Polígono UTM no válido después de la transformación: {explain_validity(utm_polygon)}, intentando reparar.")
@@ -104,7 +105,7 @@ def convert_utm_polygon_to_geojson(utm_polygon, utm_crs_epsg, target_crs_epsg="E
     """
     try:
         transformer = Transformer.from_crs(f"EPSG:{utm_crs_epsg}", target_crs_epsg, always_xy=True)
-        geographic_polygon = utm_polygon.transform(transformer.transform)
+        geographic_polygon = transform(transformer.transform, utm_polygon)  # ✅ CORREGIDO
 
         if not geographic_polygon.is_valid:
             logging.warning(f"Polígono geográfico no válido después de la transformación inversa: {explain_validity(geographic_polygon)}, intentando reparar.")

@@ -165,6 +165,36 @@ const MapManager = (() => {
     const getResultLots = () => {
         return resultLotsLayer.toGeoJSON();
     };
+
+    const loadGeoJSON = (geojson) => {
+    const layer = L.geoJSON(geojson).getLayers()[0];
+    if (layer) {
+        drawnItems.clearLayers();
+        resultLotsLayer.clearLayers();
+        drawnItems.addLayer(layer);
+
+        currentPolygonLayer = layer;
+
+        const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+        layer.bindTooltip(`Área: ${(area).toFixed(2)} m²`, { permanent: false, direction: 'top' }).openTooltip();
+
+        const geojsonOutput = document.getElementById('geojson-output');
+        if (geojsonOutput) {
+            geojsonOutput.value = JSON.stringify(layer.toGeoJSON(), null, 2); // ✅ Aquí el cambio
+        }
+
+        if (typeof TerrainManager !== 'undefined') {
+            TerrainManager.setCurrentTerreno(null, '', JSON.stringify(layer.toGeoJSON().geometry));
+        }
+
+        if (typeof UIManager !== 'undefined') {
+            UIManager.updateStatus(true);
+            UIManager.updateLotesInfo();
+        }
+    }
+};
+
+
     
     return {
         initMap,
@@ -175,7 +205,8 @@ const MapManager = (() => {
         getMap: () => map,
         getResultLotsLayer: () => resultLotsLayer,
         getCurrentPolygonLayer: () => currentPolygonLayer,
-        getResultLots
+        getResultLots,
+        loadGeoJSON 
     };
 })();
         
